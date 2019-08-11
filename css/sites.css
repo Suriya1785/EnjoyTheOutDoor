@@ -22,11 +22,37 @@
     tbody {
         font-size: 75%;
     }
+    /* Apply table width for nice view for phone number and other fields*/
+    
+    .addrTwidth {
+        width: 15%;
+    }
+    
+    .locTwidth {
+        width: 20%;
+    }
+    
+    .suppTwidth {
+        width: 10%;
+    }
+    
+    .phoneTwidth {
+        width: 15%;
+    }
+    
+    .coordTwidth {
+        width: 10%;
+    }
+    
+    .visitTwidth {
+        width: 10%;
+    }
     
     .bgMediumImage {
         background-image: url("../images/home/homePageIcon.jpg");
         background-size: 100%;
     }
+    /* Apply for the list items in the home page for navigation */
     
     .non-underline-link {
         text-decoration: none !important;
@@ -46,6 +72,9 @@
         h3 {
             font-size: 1em;
         }
+        h4 {
+            font-size: 0.9em;
+        }
     }
     /* Medium devices (landscape tablets, 768px and up) */
     
@@ -62,6 +91,9 @@
         h3 {
             font-size: 1em;
         }
+        h4 {
+            font-size: 0.9em;
+        }
     }
     /* Large devices (laptops/desktops, 992px and up) */
     
@@ -76,6 +108,9 @@
         h3 {
             font-size: 1em;
         }
+        h4 {
+            font-size: 0.9em;
+        }
     }
     /* Extra large devices (large laptops and desktops, 1200px and up) */
     
@@ -89,5 +124,8 @@
         }
         h3 {
             font-size: 1em;
+        }
+        h4 {
+            font-size: 0.9em;
         }
     }

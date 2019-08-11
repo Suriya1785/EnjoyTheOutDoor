@@ -6,7 +6,8 @@
 /* This function is called during window onload of the natural park page and 
  * assign function to event handler dropdown
  * No parameters
- * Calls: function checkUserInput(), loadLocationList(), loadParkTypesList(), loadTableListByLocation() and loadTableListByParkType   
+ * Calls: function checkUserInput(), loadLocationList(), loadParkTypesList(), loadTableListByLocation(),
+ * loadTableListByParkType() and validateResults()
  */
 "Use Strict";
 window.onload = function() {
@@ -93,6 +94,7 @@ window.onload = function() {
     let selectByParkTypeListField = document.getElementById("selectByParkTypeList");
     let errorMsgIdField = document.getElementById("errorMsgId")
     let resultTableListField = document.getElementById("resultTableList");
+    let tableDivField = document.getElementById("tableDiv");
 
     //Load JSON during onload process. it will not delay further processing upon further selection
     $.getJSON("data/nationalparks.json", function(data) {
@@ -104,17 +106,19 @@ window.onload = function() {
         let isValid = checkUserInput(inputSearchTypeField, errorMsgIdField);
         if (isValid) {
             let selectedSearchType = inputSearchTypeField.options[inputSearchTypeField.selectedIndex].value;
+            // validate the selection search type and load location/park types drop down if not already and toggle hide/display
             switch (selectedSearchType) {
                 case "byLocation":
                     loadLocationList(locationList, selectByLocationListField);
-                    locationListDivField.style.display = "block";
+                    // flex is used to NOT to loose applied height and width
+                    locationListDivField.style.display = "flex";
                     parkTypeListDivField.style.display = "none";
                     resultTableListField.innerHTML = " ";
                     selectByLocationListField.selectedIndex = 0;
                     break;
                 case "byParkType":
                     loadParkTypesList(parkTypeList, selectByParkTypeListField);
-                    parkTypeListDivField.style.display = "block";
+                    parkTypeListDivField.style.display = "flex";
                     locationListDivField.style.display = "none";
                     resultTableListField.innerHTML = " ";
                     selectByParkTypeListField.selectedIndex = 0;
@@ -122,7 +126,7 @@ window.onload = function() {
             }
             document.getElementById("errorMsgId").innerHTML = " ";
         } else {
-            document.getElementById("resultTableList").innerHTML = " ";
+            // If invalid user selection, hide dropdown and clear the prior results
             resultTableListField.innerHTML = " ";
             locationListDivField.style.display = "none";
             parkTypeListDivField.style.display = "none";
@@ -133,9 +137,16 @@ window.onload = function() {
             let isValid = checkUserInput(selectByLocationListField, errorMsgIdField);
             if (isValid) {
                 let selectedLocation = selectByLocationListField.options[selectByLocationListField.selectedIndex].value;
+                // load table list based on location sub selection
                 loadTableListByLocation(selectedLocation, listOfNationalParks, resultTableListField);
-                locationListDivField.style.display = "block";
+                // hide display of previous parktype results, if there are
+                locationListDivField.style.display = "flex";
                 parkTypeListDivField.style.display = "none";
+                // validate the results, if empty due to no data for selection, show appropriate error message
+                validateResults(tableDivField, errorMsgIdField);
+
+            } else {
+                resultTableListField.innerHTML = " ";
             }
         }
         // Event handler for park type list dropdown selection
@@ -143,15 +154,20 @@ window.onload = function() {
             let isValid = checkUserInput(selectByParkTypeListField, errorMsgIdField);
             if (isValid) {
                 let selectedParkType = selectByParkTypeListField.options[selectByParkTypeListField.selectedIndex].value;
+                // load table list based on park type sub selection
                 loadTableListByParkType(selectedParkType, listOfNationalParks, resultTableListField);
+                // hide display of previous parktype results, if there are
                 locationListDivField.style.display = "none";
-                parkTypeListDivField.style.display = "block";
+                parkTypeListDivField.style.display = "flex";
+                // validate the results, if empty due to no data for selection, show appropriate error message
+                validateResults(tableDivField, errorMsgIdField);
+            } else {
+                resultTableListField.innerHTML = " ";
             }
         }
         // Hide all fields in the form except search By during onload process
     locationListDivField.style.display = "none";
     parkTypeListDivField.style.display = "none";
-
 };
 
 /* function is to load location dropdown list based on user selection - by location 
@@ -198,12 +214,13 @@ function loadParkTypesList(parkTypeList, selectByParkTypeListField) {
  * Calls: None
  */
 function loadTableListByLocation(location, listOfNationalParks, resultTableListField) {
-    resultTableListField.className = "table table-responsive table-striped mt-3 border";
+    resultTableListField.className = "table table-responsive text-center mt-3 border table-hover";
     let row;
     // Table header and apply classes  
     let thead = document.querySelectorAll("thead");
     if (thead.length == 0) {
         let head = resultTableListField.createTHead();
+        head.className = "bg-info text-white";
         row = head.insertRow(0);
         let cellHeadLocName = row.insertCell(0);
         cellHeadLocName.innerHTML = "Location Name";
@@ -241,22 +258,27 @@ function loadTableListByLocation(location, listOfNationalParks, resultTableListF
         if (location == listOfNationalParks.parks[i].State) {
             let cellLocName = row.insertCell(0);
             cellLocName.innerHTML = listOfNationalParks.parks[i].LocationName;
+            cellLocName.className = "locTwidth";
             let cellAddress = row.insertCell(1);
             cellAddress.innerHTML = listOfNationalParks.parks[i].Address;
+            cellAddress.className = "addrTwidth";
             let cellCity = row.insertCell(2);
             cellCity.innerHTML = listOfNationalParks.parks[i].City;
+            cellCity.className = "suppTwidth";
             let cellState = row.insertCell(3);
             cellState.innerHTML = listOfNationalParks.parks[i].State;
+            cellState.className = "suppTwidth";
             let cellZipCode = row.insertCell(4);
             cellZipCode.innerHTML = listOfNationalParks.parks[i].ZipCode;
+            cellZipCode.className = "suppTwidth";
             let cellPhone = row.insertCell(5);
+            // Replace with space with phone is not available
             if (listOfNationalParks.parks[i].Phone == 0) {
                 cellPhone.innerHTML = "&nbsp";
             } else {
                 cellPhone.innerHTML = listOfNationalParks.parks[i].Phone;
             }
-            // let cellFax = row.insertCell(6);
-            // cellFax.innerHTML = listOfNationalParks.parks[i].Fax;
+            cellPhone.className = "phoneTwidth";
 
             cellVisit = row.insertCell(6);
             // Add anchor tag for more info for respective park, if available
@@ -264,14 +286,17 @@ function loadTableListByLocation(location, listOfNationalParks, resultTableListF
                 let visitTag = document.createElement("a");
                 visitTag.href = listOfNationalParks.parks[i].Visit;
                 visitTag.id = "Visit" + i;
-                visitTag.innerHTML = "Click me to know more"
+                visitTag.innerHTML = "Click me";
                 visitTag.target = "Visit" + i;
                 cellVisit.appendChild(visitTag);
             } else {
                 cellVisit.innerHTML = "NA";
             }
+            cellVisit.className = "visitTwidth";
+            // customized latitude and longitude for display as per discussion
             cellCoords = row.insertCell(7);
-            cellCoords.innerHTML = "lat:" + listOfNationalParks.parks[i].Latitude + "<br>" + "lon: " + listOfNationalParks.parks[i].Longitude;
+            cellCoords.innerHTML = "lat: " + listOfNationalParks.parks[i].Latitude + "<br>" + "lon: " + listOfNationalParks.parks[i].Longitude;
+            cellCoords.className = "coordTwidth";
             row = resultTableListField.insertRow(resultTableListField.rows.length);
         }
     }
@@ -279,18 +304,20 @@ function loadTableListByLocation(location, listOfNationalParks, resultTableListF
 }
 
 /* function is to load table based on the selected park type and build results in table 
- * @param location (string) - selected park Type (park name)
+ * @param selectedParkType (string) - selected park Type (park name)
  * @param listOfNationalParks (array of javastring objects) - list of national parks
  * @param resultTableListField (string) - table id to build the results  
  * Calls: None
  */
 function loadTableListByParkType(selectedParkType, listOfNationalParks, resultTableListField) {
-    resultTableListField.className = "table table-responsive table-striped mt-3 border";
+    // set class table responsive for responsive design
+    resultTableListField.className = "table table-responsive text-center mt-3 border table-hover";
     let row;
     // Table header and apply classes  
     let thead = document.querySelectorAll("thead");
     if (thead.length == 0) {
         let head = resultTableListField.createTHead();
+        head.className = "bg-info text-white";
         row = head.insertRow(0);
         let cellHeadLocName = row.insertCell(0);
         cellHeadLocName.innerHTML = "Location Name";
@@ -332,44 +359,77 @@ function loadTableListByParkType(selectedParkType, listOfNationalParks, resultTa
         if (isValid) {
             let cellLocName = row.insertCell(0);
             cellLocName.innerHTML = listOfNationalParks.parks[i].LocationName;
+            // Apply table width for each column to show required info in appropriate pattern
+            cellLocName.className = "locTwidth";
             let cellAddress = row.insertCell(1);
             cellAddress.innerHTML = listOfNationalParks.parks[i].Address;
+            cellAddress.className = "addrTwidth";
             let cellCity = row.insertCell(2);
+            cellCity.className = "suppTwidth";
             cellCity.innerHTML = listOfNationalParks.parks[i].City;
             let cellState = row.insertCell(3);
+            cellState.className = "suppTwidth";
             cellState.innerHTML = listOfNationalParks.parks[i].State;
             let cellZipCode = row.insertCell(4);
             cellZipCode.innerHTML = listOfNationalParks.parks[i].ZipCode;
+            cellZipCode.className = "suppTwidth";
             let cellPhone = row.insertCell(5);
             if (listOfNationalParks.parks[i].Phone == 0) {
                 cellPhone.innerHTML = "&nbsp";
             } else {
                 cellPhone.innerHTML = listOfNationalParks.parks[i].Phone;
             }
+            cellPhone.className = "phoneTwidth";
             cellVisit = row.insertCell(6);
             // Add anchor tag for more info for respective park, if available
             if (listOfNationalParks.parks[i].Visit != undefined) {
                 let visitTag = document.createElement("a");
                 visitTag.href = listOfNationalParks.parks[i].Visit;
                 visitTag.id = "Visit" + i;
-                visitTag.innerHTML = "Click me to know more"
+                visitTag.innerHTML = "Click me"
                 visitTag.target = "Visit" + i;
                 cellVisit.appendChild(visitTag);
             } else {
                 cellVisit.innerHTML = "NA";
             }
+            cellVisit.className = "visitTwidth";
             // per direction, it has been concatenated to look better display
             cellCoords = row.insertCell(7);
             cellCoords.innerHTML = "lat:" + listOfNationalParks.parks[i].Latitude + "<br>" + "lon: " + listOfNationalParks.parks[i].Longitude;
+            cellCoords.className = "coordTwidth";
             row = resultTableListField.insertRow(resultTableListField.rows.length);
         }
     }
 }
 
+
+/* This function is to validate results table and show appropriate error message / clear error message for success
+ * @param (tableDivField) (div Id / string) - holds the result table
+ * @param errorMsgIdField (string) - Error message field to build appropriate error message
+ */
+function validateResults(tableDivField, errorMsgIdField) {
+    let tableBodyListField = document.getElementById("tableBodyList");
+    // validate child node of body to find if there is NO match found for the results and build appropriate message
+    if (tableBodyListField != null) {
+        if (tableBodyListField.children.length <= 1) {
+            let errorMsg = "Sorry! No results for selected value, Please select other options";
+            errorMsgIdField.innerHTML = errorMsg;
+            $(errorMsgIdField).addClass("badInput");
+            tableDivField.style.display = "none";
+        } else {
+            tableDivField.style.display = "flex";
+            errorMsgIdField.innerHTML = " ";
+        }
+    } else {
+        tableDivField.style.display = "flex";
+        errorMsgIdField.innerHTML = " ";
+    }
+}
+
 /* This function is to validate user selection
  * populate error message field
- * @param (string) - selected search By category type dropdown
- * @param (string) - Error message field to build appropriate error message
+ * @param inputDropDown (string) - selected search By category type dropdown
+ * @param errorMsgIdField (string) - Error message field to build appropriate error message
  */
 function checkUserInput(inputDropDown, errorMsgIdField) {
     let errorMsg, isError = false;
