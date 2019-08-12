@@ -256,47 +256,8 @@ function loadTableListByLocation(location, listOfNationalParks, resultTableListF
     // Loop through the data array and build table
     for (let i = 0; i < listOfNationalParks.parks.length; i++) {
         if (location == listOfNationalParks.parks[i].State) {
-            let cellLocName = row.insertCell(0);
-            cellLocName.innerHTML = listOfNationalParks.parks[i].LocationName;
-            cellLocName.className = "locTwidth";
-            let cellAddress = row.insertCell(1);
-            cellAddress.innerHTML = listOfNationalParks.parks[i].Address;
-            cellAddress.className = "addrTwidth";
-            let cellCity = row.insertCell(2);
-            cellCity.innerHTML = listOfNationalParks.parks[i].City;
-            cellCity.className = "suppTwidth";
-            let cellState = row.insertCell(3);
-            cellState.innerHTML = listOfNationalParks.parks[i].State;
-            cellState.className = "suppTwidth";
-            let cellZipCode = row.insertCell(4);
-            cellZipCode.innerHTML = listOfNationalParks.parks[i].ZipCode;
-            cellZipCode.className = "suppTwidth";
-            let cellPhone = row.insertCell(5);
-            // Replace with space with phone is not available
-            if (listOfNationalParks.parks[i].Phone == 0) {
-                cellPhone.innerHTML = "&nbsp";
-            } else {
-                cellPhone.innerHTML = listOfNationalParks.parks[i].Phone;
-            }
-            cellPhone.className = "phoneTwidth";
-
-            cellVisit = row.insertCell(6);
-            // Add anchor tag for more info for respective park, if available
-            if (listOfNationalParks.parks[i].Visit != undefined) {
-                let visitTag = document.createElement("a");
-                visitTag.href = listOfNationalParks.parks[i].Visit;
-                visitTag.id = "Visit" + i;
-                visitTag.innerHTML = "Click me";
-                visitTag.target = "Visit" + i;
-                cellVisit.appendChild(visitTag);
-            } else {
-                cellVisit.innerHTML = "NA";
-            }
-            cellVisit.className = "visitTwidth";
-            // customized latitude and longitude for display as per discussion
-            cellCoords = row.insertCell(7);
-            cellCoords.innerHTML = "lat: " + listOfNationalParks.parks[i].Latitude + "<br>" + "lon: " + listOfNationalParks.parks[i].Longitude;
-            cellCoords.className = "coordTwidth";
+            // Build table rows for the matched park 
+            buildTbodyRow(listOfNationalParks.parks[i], row, i);
             row = resultTableListField.insertRow(resultTableListField.rows.length);
         }
     }
@@ -357,51 +318,61 @@ function loadTableListByParkType(selectedParkType, listOfNationalParks, resultTa
         let isValid = regExp.test(listOfNationalParks.parks[i].LocationName);
 
         if (isValid) {
-            let cellLocName = row.insertCell(0);
-            cellLocName.innerHTML = listOfNationalParks.parks[i].LocationName;
-            // Apply table width for each column to show required info in appropriate pattern
-            cellLocName.className = "locTwidth";
-            let cellAddress = row.insertCell(1);
-            cellAddress.innerHTML = listOfNationalParks.parks[i].Address;
-            cellAddress.className = "addrTwidth";
-            let cellCity = row.insertCell(2);
-            cellCity.className = "suppTwidth";
-            cellCity.innerHTML = listOfNationalParks.parks[i].City;
-            let cellState = row.insertCell(3);
-            cellState.className = "suppTwidth";
-            cellState.innerHTML = listOfNationalParks.parks[i].State;
-            let cellZipCode = row.insertCell(4);
-            cellZipCode.innerHTML = listOfNationalParks.parks[i].ZipCode;
-            cellZipCode.className = "suppTwidth";
-            let cellPhone = row.insertCell(5);
-            if (listOfNationalParks.parks[i].Phone == 0) {
-                cellPhone.innerHTML = "&nbsp";
-            } else {
-                cellPhone.innerHTML = listOfNationalParks.parks[i].Phone;
-            }
-            cellPhone.className = "phoneTwidth";
-            cellVisit = row.insertCell(6);
-            // Add anchor tag for more info for respective park, if available
-            if (listOfNationalParks.parks[i].Visit != undefined) {
-                let visitTag = document.createElement("a");
-                visitTag.href = listOfNationalParks.parks[i].Visit;
-                visitTag.id = "Visit" + i;
-                visitTag.innerHTML = "Click me"
-                visitTag.target = "Visit" + i;
-                cellVisit.appendChild(visitTag);
-            } else {
-                cellVisit.innerHTML = "NA";
-            }
-            cellVisit.className = "visitTwidth";
-            // per direction, it has been concatenated to look better display
-            cellCoords = row.insertCell(7);
-            cellCoords.innerHTML = "lat:" + listOfNationalParks.parks[i].Latitude + "<br>" + "lon: " + listOfNationalParks.parks[i].Longitude;
-            cellCoords.className = "coordTwidth";
+            // Build table rows for the matched park 
+            buildTbodyRow(listOfNationalParks.parks[i], row, i);
             row = resultTableListField.insertRow(resultTableListField.rows.length);
         }
     }
 }
 
+/* function is to load table based on the selected park type and build results in table 
+ * @param park (string) - selected park Type (park name)
+ * @param row (table row in table body identifier)  
+ * @param occurenceNo (occurence in the source array of parks list) - table id to build the results  
+ * Calls: None
+ */
+function buildTbodyRow(park, row, occurenceNo) {
+    let cellLocName = row.insertCell(0);
+    cellLocName.innerHTML = park.LocationName;
+    // Apply table width for each column to show required info in appropriate pattern
+    cellLocName.className = "locTwidth";
+    let cellAddress = row.insertCell(1);
+    cellAddress.innerHTML = park.Address;
+    cellAddress.className = "addrTwidth";
+    let cellCity = row.insertCell(2);
+    cellCity.className = "suppTwidth";
+    cellCity.innerHTML = park.City;
+    let cellState = row.insertCell(3);
+    cellState.className = "suppTwidth";
+    cellState.innerHTML = park.State;
+    let cellZipCode = row.insertCell(4);
+    cellZipCode.innerHTML = park.ZipCode;
+    cellZipCode.className = "suppTwidth";
+    let cellPhone = row.insertCell(5);
+    if (park.Phone == 0) {
+        cellPhone.innerHTML = "&nbsp";
+    } else {
+        cellPhone.innerHTML = park.Phone;
+    }
+    cellPhone.className = "phoneTwidth";
+    cellVisit = row.insertCell(6);
+    // Add anchor tag for more info for respective park, if available
+    if (park.Visit != undefined) {
+        let visitTag = document.createElement("a");
+        visitTag.href = park.Visit;
+        visitTag.id = "Visit" + occurenceNo;
+        visitTag.innerHTML = "Click me"
+        visitTag.target = "Visit" + occurenceNo;
+        cellVisit.appendChild(visitTag);
+    } else {
+        cellVisit.innerHTML = "NA";
+    }
+    cellVisit.className = "visitTwidth";
+    // per direction, it has been concatenated to look better display
+    cellCoords = row.insertCell(7);
+    cellCoords.innerHTML = "lat:" + park.Latitude + "<br>" + "lon: " + park.Longitude;
+    cellCoords.className = "coordTwidth";
+}
 
 /* This function is to validate results table and show appropriate error message / clear error message for success
  * @param (tableDivField) (div Id / string) - holds the result table
